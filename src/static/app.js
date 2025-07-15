@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const activitiesList = document.getElementById("activities-list");
   const activitySelect = document.getElementById("activity");
-  const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
   // Helper to categorize activities
@@ -13,7 +12,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Store activities globally for filtering
-  let allActivities = {};
+  // Hardcoded sample data for fallback if backend is unreachable
+  let allActivities = {
+    "Chess Club": {
+      description: "Learn strategies and compete in chess tournaments",
+      schedule: "Fridays, 3:30 PM - 5:00 PM",
+      max_participants: 12,
+      participants: ["michael@mergington.edu", "daniel@mergington.edu"]
+    },
+    "Programming Class": {
+      description: "Learn programming fundamentals and build software projects",
+      schedule: "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
+      max_participants: 20,
+      participants: ["emma@mergington.edu", "sophia@mergington.edu"]
+    },
+    "Art Club": {
+      description: "Explore your creativity through painting and drawing",
+      schedule: "Thursdays, 3:30 PM - 5:00 PM",
+      max_participants: 15,
+      participants: ["amelia@mergington.edu", "harper@mergington.edu"]
+    },
+    "Soccer Team": {
+      description: "Join the school soccer team and compete in matches",
+      schedule: "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+      max_participants: 22,
+      participants: ["liam@mergington.edu", "noah@mergington.edu"]
+    }
+  };
 
   // Function to render activities with filters
   function renderActivities() {
@@ -51,6 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
     filtered.forEach(([name, details]) => {
       const activityCard = document.createElement("div");
       activityCard.className = "activity-card";
+      activityCard.setAttribute("tabindex", "0");
+      activityCard.setAttribute("role", "region");
+      activityCard.setAttribute("aria-label", `${name} activity card`);
 
       const spotsLeft = details.max_participants - details.participants.length;
 
@@ -63,12 +91,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 ${details.participants
                   .map(
                     (email) =>
-                      `<li><span class="participant-email">${email}</span><button class="delete-btn" data-activity="${name}" data-email="${email}">❌</button></li>`
+                      `<li><span class="participant-email">${email}</span><button class="delete-btn" aria-label="Remove ${email} from ${name}" data-activity="${name}" data-email="${email}">❌</button></li>`
                   )
                   .join("")}
               </ul>
             </div>`
           : `<p><em>No participants yet</em></p>`;
+
+      // Add register form directly to card
+      const registerForm = `
+        <form class="register-form" aria-label="Register for ${name}" autocomplete="off">
+          <label for="register-email-${name}" class="visually-hidden">Student Email</label>
+          <input type="email" id="register-email-${name}" name="email" required placeholder="your-email@mergington.edu" aria-label="Student Email for ${name}" />
+          <button type="submit" class="register-btn" aria-label="Register for ${name}">Register Student</button>
+        </form>
+      `;
 
       activityCard.innerHTML = `
         <h4>${name}</h4>
@@ -78,20 +115,21 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="participants-container">
           ${participantsHTML}
         </div>
+        <div class="register-container">
+          ${registerForm}
+        </div>
       `;
 
       activitiesList.appendChild(activityCard);
-
-      // Add option to select dropdown
-      const option = document.createElement("option");
-      option.value = name;
-      option.textContent = name;
-      activitySelect.appendChild(option);
     });
 
     // Add event listeners to delete buttons
     document.querySelectorAll(".delete-btn").forEach((button) => {
       button.addEventListener("click", handleUnregister);
+    });
+    // Add event listeners to register forms
+    document.querySelectorAll(".register-form").forEach((form) => {
+      form.addEventListener("submit", handleRegister);
     });
   }
 
@@ -99,13 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchActivities() {
     try {
       const response = await fetch("/activities");
-      allActivities = await response.json();
-      renderActivities();
+      if (response.ok) {
+        allActivities = await response.json();
+      }
     } catch (error) {
-      activitiesList.innerHTML =
-        "<p>Failed to load activities. Please try again later.</p>";
-      console.error("Error fetching activities:", error);
+      // If backend fails, use hardcoded data
+      console.warn("Using hardcoded sample data for activities.");
     }
+    renderActivities();
   }
 
   // Handle unregister functionality
@@ -151,17 +190,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Handle form submission
-  signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const activity = document.getElementById("activity").value;
+  // Handle register form submission on each card
+  async function handleRegister(event) {
+    event.preventDefault();
+    const form = event.target;
+    const card = form.closest('.activity-card');
+    const name = card.querySelector('h4').textContent;
+    const emailInput = form.querySelector('input[type="email"]');
+    const email = emailInput.value;
 
     try {
       const response = await fetch(
         `/activities/${encodeURIComponent(
-          activity
+          name
         )}/signup?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
@@ -173,9 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok) {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
-        signupForm.reset();
-
-        // Refresh activities list to show updated participants
+        emailInput.value = "";
         fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
@@ -184,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       messageDiv.classList.remove("hidden");
 
-      // Hide message after 5 seconds
       setTimeout(() => {
         messageDiv.classList.add("hidden");
       }, 5000);
@@ -194,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
     }
-  });
+  }
 
   // Add filter/search/sort event listeners
   document.getElementById("activity-search").addEventListener("input", renderActivities);
