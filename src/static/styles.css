@@ -1,3 +1,15 @@
+/* Visually hidden utility for accessibility */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -58,20 +70,65 @@ section h3 {
 }
 
 .activity-card {
-  margin-bottom: 15px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  margin-bottom: 24px;
+  padding: 24px 20px 32px 20px;
+  border: 2px solid #6a1b9a;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f9f9f9 60%, #ffe082 100%);
+  box-shadow: 0 6px 24px rgba(106,27,154,0.12), 0 1.5px 6px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  outline: none;
+}
+.activity-card:focus {
+  border-color: #ff7043;
+  box-shadow: 0 0 0 4px #ffccbc;
 }
 
 .activity-card h4 {
   margin-bottom: 10px;
-  color: #0066cc;
+  color: #6a1b9a;
+  font-size: 1.5rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  letter-spacing: 1px;
 }
 
 .activity-card p {
   margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.register-form input[type="email"] {
+  padding: 10px;
+  border: 1.5px solid #6a1b9a;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff8e1;
+  color: #4a148c;
+}
+.register-form input[type="email"]:focus {
+  border-color: #ff7043;
+  outline: 2px solid #ff7043;
+}
+.register-btn {
+  background: linear-gradient(90deg, #6a1b9a 60%, #ff7043 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 0;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(106,27,154,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.register-btn:hover, .register-btn:focus {
+  background: linear-gradient(90deg, #ff7043 60%, #6a1b9a 100%);
+  box-shadow: 0 4px 16px rgba(255,112,67,0.12);
 }
 
 /* New styles for participants section */
