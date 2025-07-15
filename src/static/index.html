@@ -16,43 +16,25 @@
       <section id="activities-container">
         <h3>Available Activities</h3>
         <div id="activity-toolbar" class="form-group" style="margin-bottom: 20px;">
-          <input type="text" id="activity-search" placeholder="Search activities..." style="width: 45%; margin-right: 10px;" />
-          <select id="activity-category" style="width: 25%; margin-right: 10px;">
+          <input type="text" id="activity-search" placeholder="Search activities..." aria-label="Search activities" style="width: 45%; margin-right: 10px;" />
+          <select id="activity-category" aria-label="Filter by category" style="width: 25%; margin-right: 10px;">
             <option value="">All Categories</option>
             <option value="Club">Club</option>
             <option value="Class">Class</option>
             <option value="Team">Team</option>
             <option value="Other">Other</option>
           </select>
-          <select id="activity-sort" style="width: 25%;">
+          <select id="activity-sort" aria-label="Sort activities" style="width: 25%;">
             <option value="name">Sort by Name</option>
             <option value="spots">Sort by Availability</option>
           </select>
         </div>
-        <div id="activities-list">
+        <div id="activities-list" aria-live="polite">
           <!-- Activities will be loaded here -->
           <p>Loading activities...</p>
         </div>
       </section>
-
-      <section id="signup-container">
-        <h3>Sign Up for an Activity</h3>
-        <form id="signup-form">
-          <div class="form-group">
-            <label for="email">Student Email:</label>
-            <input type="email" id="email" required placeholder="your-email@mergington.edu" />
-          </div>
-          <div class="form-group">
-            <label for="activity">Select Activity:</label>
-            <select id="activity" required>
-              <option value="">-- Select an activity --</option>
-              <!-- Activity options will be loaded here -->
-            </select>
-          </div>
-          <button type="submit">Sign Up</button>
-        </form>
-        <div id="message" class="hidden"></div>
-      </section>
+      <div id="message" class="hidden" role="status" aria-live="polite"></div>
     </main>
 
     <footer>
